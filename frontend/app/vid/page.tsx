@@ -1,7 +1,7 @@
   'use client'
   import { useState } from "react";
   import Nav from "@/components/Nav"
-
+  import { useRouter } from "next/navigation";
   interface QuizItem {
     question: string;
     choices: string[];
@@ -14,7 +14,7 @@
   const [success,setSuccess]  = useState<String | null>(null);    
   const [data, setData] = useState<QuizItem[]>([]); 
 
-
+  const router = useRouter()
       const handleSubmit = async()=>{
         setLoading(true)
         setError(null);
@@ -79,7 +79,7 @@
               } text-white py-2 rounded-lg transition duration-300 font-main font-bold cursor-pointer`} >{loading ? "Extracting...": "Start"}
               </button>
           </div>
-          <pre>{JSON.stringify(data, null, 2)}</pre>
+       
         </div>
 
       </section>

@@ -6,8 +6,9 @@ import os
 import re
 
 from faster_whisper import WhisperModel
-from .cohere import generate_quiz_from_notes  # We'll fix this later
-# OR use: from ..utils.cohere import generate_quiz_from_notes if in utils
+#from .cohere import generate_quiz_from_notes  # We'll fix this later
+#from ..utils.cohere import generate_quiz_from_notes 
+from api.utils import generate_quiz_from_notes
 
 # Initialize Whisper model (do this once)
 model_size = "large-v3"
