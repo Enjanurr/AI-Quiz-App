@@ -7,7 +7,7 @@ A full-stack web app that generates interactive quizzes from YouTube videos usin
 ## 📸 Demo
 
 ![screenshot](demo)  
-*(Replace with your screenshot or demo GIF)*
+![screenshot](demo-1.png)
 
 ---
 
@@ -39,5 +39,5 @@ A full-stack web app that generates interactive quizzes from YouTube videos usin
 
 ---
 
-## 📂 Project Structure
+
 
