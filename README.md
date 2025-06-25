@@ -6,7 +6,7 @@ A full-stack web app that generates interactive quizzes from YouTube videos usin
 
 ## 📸 Demo
 
-![screenshot](Screenshot 2025-06-25 111152.png)  
+![screenshot](demo)  
 *(Replace with your screenshot or demo GIF)*
 
 ---
