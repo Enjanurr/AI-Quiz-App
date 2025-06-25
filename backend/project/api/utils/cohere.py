@@ -1,12 +1,14 @@
+# utils/cohere.py
 import json
 import cohere
 import os
+from django.db import transaction
 from ..models import Question, Choice
 
 trial_key = os.environ.get('Trial_KEY')
 co = cohere.ClientV2(trial_key)
 
-def generate_quiz_from_notes(notes: str):
+def generate_quiz_from_notes(notes: str, user):
     prompt = f"""
 You are a teacher. Based on the following notes, generate a 10-item multiple-choice quiz in JSON format.
 
@@ -40,14 +42,17 @@ Student Notes:
     content_text = "".join([c.text for c in content]) if isinstance(content, list) else content
     content_text = content_text.strip()
 
-    try:
-        quiz_data = json.loads(content_text)
+    quiz_data = json.loads(content_text)
 
+    with transaction.atomic():
         for item in quiz_data:
             question_text = item.get("question")
             choices_data = item.get("choices", [])
 
-            q = Question.objects.create(text=question_text)
+            if not question_text or not choices_data:
+                continue
+
+            q = Question.objects.create(text=question_text, user=user)
 
             for choice in choices_data:
                 Choice.objects.create(
@@ -55,5 +60,5 @@ Student Notes:
                     text=choice["text"],
                     is_correct=choice["is_correct"]
                 )
-    except json.JSONDecodeError as e:
-        raise ValueError(f"[Invalid JSON] {e}\nRaw Content:\n{content_text}")
+
+    return quiz_data

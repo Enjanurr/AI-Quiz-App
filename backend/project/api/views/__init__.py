@@ -1,4 +1,6 @@
-from .summary import Summary
-from .getQuiz import quiz_List
+from .summary import SummaryView
+from .getQuiz import QuizListView
+from .auth import CreateUserView,EmailUserView
+from .checkQuiz import CheckAnswersView
 #from .cohere import generate_quiz_from_notes 
-__all__ = ['Summary','quiz_List']
+__all__ = ['SummaryView','QuizListView','CreateUserView','EmailUserView','CheckAnswersView']
