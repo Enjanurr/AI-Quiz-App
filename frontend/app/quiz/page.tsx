@@ -1,4 +1,5 @@
 import QuizBox from "@/components/quizBox";
+import Nav from "@/components/Nav";
 
 
 export default async function QuizPage() {
@@ -7,5 +8,10 @@ export default async function QuizPage() {
   });
   const quizzes  = await res.json();
 
-  return <QuizBox quizzData={quizzes} />;
+  return (
+    <section>
+      <Nav />
+      <QuizBox quizzData={quizzes} />
+    </section>
+  )
 }
