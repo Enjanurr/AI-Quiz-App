@@ -7,7 +7,7 @@ interface QuizItem {
   choices: string[];
   answer: string;
 }
-export default function Video() {
+export default async function Video() {
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<String | null>(null);

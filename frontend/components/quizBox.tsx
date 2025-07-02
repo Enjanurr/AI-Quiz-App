@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 
 interface Choice {
   id: string;
@@ -8,23 +9,21 @@ interface Choice {
   is_correct: boolean;
 }
 
-interface Quiz {
-  id: string;
+interface Question {
+  id: string; // question ID
+  quiz_id: string;  // backend must provide this!
   text: string;
   choices: Choice[];
 }
 
 interface QuizBoxProps {
-  quizzData: Quiz[];
+  quizzData: Question[];
 }
 
 const QuizBox = ({ quizzData }: QuizBoxProps) => {
-  const [answers, setAnswers] = useState<{ [quizId: string]: string }>({});
+  const [answers, setAnswers] = useState<{ [questionId: string]: string }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [message, setMessage] = useState("");
-  const [score, setScore] = useState(0);
-  const [results, setResults] = useState<any[]>([]);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const postPerPage = 5;
   const lastPostIndex = currentPage * postPerPage;
@@ -32,121 +31,94 @@ const QuizBox = ({ quizzData }: QuizBoxProps) => {
   const currentQuizzes = quizzData.slice(firstPostIndex, lastPostIndex);
   const totalPages = Math.ceil(quizzData.length / postPerPage);
 
-  const handleSubmit = async () => {
-    try {
-      if (Object.keys(answers).length < quizzData.length) {
-        setMessage("❌ Please answer all the questions before submitting.");
-        return;
-      }
+  const router = useRouter();
 
+  const handleSubmit = async () => {
+    if (Object.keys(answers).length < quizzData.length) {
+      setMessage("❌ Please answer all the questions before submitting.");
+      return;
+    }
+
+    const quiz_id = quizzData[0]?.quiz_id || quizzData[0]?.id;
+
+   const payload = {
+  quiz_id: quiz_id,
+  answers: answers,
+};
+
+    try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_HOST}submitAnswers/`,
         {
           method: "POST",
           headers: {
-            "Content-type": "application/json",
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(answers),
+          body: JSON.stringify(payload),
         }
       );
 
-      const data = await response.json();
-
       if (!response.ok) {
-        setMessage("Failed to Submit answers");
-      } else {
-        setScore(data.score);
-        setResults(data.results);
-        setHasSubmitted(true);
-        setMessage("✅ Answers Submitted");
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        setMessage("❌ Failed to submit answers.");
+        return;
       }
+
+      setMessage("✅ Answers Submitted");
+      router.push("/result");
     } catch (error) {
       console.error(error);
-      setMessage("An error occurred");
+      setMessage("An error occurred during submission.");
     }
   };
 
   return (
     <section>
       {message && (
-        <div className="sticky top-0 left-0 right-0 w-full bg-green-400 text-white text-center py-3 z-50 shadow-md">
+        <div className="sticky top-0 w-full bg-green-400 text-white text-center py-3 z-50 shadow-md">
           {message}
         </div>
       )}
 
-      <div className="bg-slate-900 flex items-center justify-center min-h-screen p-5 relative">
+      <div className="bg-slate-900 flex items-center justify-center min-h-screen p-5">
         <div className="w-full max-w-4xl space-y-8 mt-10">
-          <h2 className="text-3xl font-bold text-white">Quiz List</h2>
+          <h2 className="text-3xl font-bold text-white">Quiz</h2>
 
           <ul className="space-y-6">
-            {currentQuizzes.map((quiz) => {
-              const userSelected = answers[quiz.id];
-              const resultData = results.find(
-                (res) => res.question_id === quiz.id
-              );
+            {currentQuizzes.map((question) => {
+              const userSelected = answers[question.id];
 
               return (
                 <li
-                  key={quiz.id}
-                  className="bg-slate-700 border border-amber-50 p-4 rounded"
+                  key={question.id}
+                  className="bg-slate-700 border p-4 rounded"
                 >
                   <h3 className="text-lg font-semibold text-white mb-4">
-                    {quiz.text}
+                    {question.text}
                   </h3>
                   <ul className="space-y-2">
-                    {quiz.choices.map((choice) => {
-                      const isUserAnswer = userSelected === choice.id;
-                      const isCorrect = choice.is_correct;
-                      const isSubmittedCorrect = hasSubmitted && isCorrect;
-                      const isSubmittedWrong =
-                        hasSubmitted && isUserAnswer && !isCorrect;
-
-                      const getColorClass = () => {
-                        if (!hasSubmitted) return "bg-slate-600";
-                        if (isSubmittedCorrect)
-                          return "bg-green-700 border-green-400";
-                        if (isSubmittedWrong)
-                          return "bg-red-700 border-red-400";
-                        return "bg-slate-600";
-                      };
-
-                      return (
-                        <label
-                          key={choice.id}
-                          htmlFor={`quiz-${quiz.id}-choice-${choice.id}`}
-                          className={`flex items-center gap-3 p-3 rounded border text-white cursor-pointer transition-all ${getColorClass()}`}
-                        >
-                          <input
-                            type="radio"
-                            name={`question-${quiz.id}`}
-                            id={`quiz-${quiz.id}-choice-${choice.id}`}
-                            value={choice.id}
-                            checked={isUserAnswer}
-                            disabled={hasSubmitted}
-                            onChange={() =>
-                              setAnswers((prev) => ({
-                                ...prev,
-                                [quiz.id]: choice.id,
-                              }))
-                            }
-                            className="form-radio text-amber-400 h-5 w-5"
-                          />
-                          <span>{choice.text}</span>
-
-                          {hasSubmitted && isUserAnswer && !isCorrect && (
-                            <span className="ml-auto text-red-200 text-sm">
-                              (Your Answer)
-                            </span>
-                          )}
-                          {hasSubmitted && isCorrect && (
-                            <span className="ml-auto text-green-300 text-sm">
-                              (Correct Answer)
-                            </span>
-                          )}
-                        </label>
-                      );
-                    })}
+                    {question.choices.map((choice) => (
+                      <label
+                        key={choice.id}
+                        htmlFor={`quiz-${question.id}-choice-${choice.id}`}
+                        className="flex items-center gap-3 p-3 rounded border text-white cursor-pointer bg-slate-600"
+                      >
+                        <input
+                          type="radio"
+                          name={`question-${question.id}`}
+                          id={`quiz-${question.id}-choice-${choice.id}`}
+                          value={choice.id}
+                          checked={userSelected === choice.id}
+                          onChange={() =>
+                            setAnswers((prev) => ({
+                              ...prev,
+                              [question.id]: choice.id,
+                            }))
+                          }
+                          className="form-radio text-amber-400 h-5 w-5"
+                        />
+                        <span>{choice.text}</span>
+                      </label>
+                    ))}
                   </ul>
                 </li>
               );
@@ -171,7 +143,7 @@ const QuizBox = ({ quizzData }: QuizBoxProps) => {
           </div>
 
           {/* Submit Button */}
-          {!hasSubmitted && currentPage === totalPages && (
+          {currentPage === totalPages && (
             <div className="flex justify-center mt-6">
               <button
                 onClick={handleSubmit}
@@ -179,15 +151,6 @@ const QuizBox = ({ quizzData }: QuizBoxProps) => {
               >
                 Submit Answers ⇒
               </button>
-            </div>
-          )}
-
-          {/* Score Display */}
-          {hasSubmitted && (
-            <div className="bg-slate-800 p-4 mt-10 rounded text-white">
-              <h3 className="text-xl font-bold mb-3">
-                🏆 Your Score: {score} / {quizzData.length}
-              </h3>
             </div>
           )}
         </div>

@@ -1,44 +1,42 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from ..models import Question, Choice
+from rest_framework.permissions import AllowAny,IsAuthenticated
+from ..models import Question, Choice,Result , StudentAnswer
+from ..serializers import StudentAnswerSerializer
+
+# To be tested later
 
 class CheckAnswersView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         score = 0
-        submitted_answer = request.data
-        results = []
+        submitted_answer = request.data # the format is question_id : selected_choice 
+        
+        
+        first_question_id = list(submitted_answer.keys())[0] # just get the keys and turn it into list
+        quiz = Question.objects.get(id = first_question_id).quiz # <= this accesses the ForeignKey relation to the parent QuizNumber so we know this question belong to quiz 1 for ex
+        
+        result = Result.objects.create(
+            quiz= quiz, # stores the Quiznumber
+            user= request.user,
+            score = 0,
+        )
 
-        for question_id, selected_choice in submitted_answer.items():
-            try:
-                question = Question.objects.get(id=question_id)
-                correct_choice = question.choices.get(is_correct=True)
-
-                is_correct = str(correct_choice.id) == str(selected_choice)
-                if is_correct:
-                    score += 1
-
-                results.append({
-                    "question_id": question_id,
-                    "selected_choice": selected_choice,
-                    "is_correct": is_correct
-                })
-
-            except Question.DoesNotExist:
-                results.append({
-                    "question_id": question_id,
-                    "error": "Question not found"
-                })
-            except Choice.DoesNotExist:
-                results.append({
-                    "question_id": question_id,
-                    "error": "Choices not found"
-                })
-
-        return Response({
-            "score": score,
-            "total": len(submitted_answer),
-            "results": results
-        })
+        for question_id, selected_choice_id in submitted_answer.items():
+            question = Question.objects.get(id=question_id)
+            selected_choice = Choice.objects.get(id=selected_choice_id)  # get the selected choice 
+            if selected_choice.is_correct:   # if equals then score + 1
+                score+=1
+            # creates the student answer
+            StudentAnswer.objects.create(
+                result=result,
+                question=question,
+                selected_choice=selected_choice
+            )
+        result.score = score # update the score to the computed score, initially it is zero as defined in the result
+        result.save() # then save
+        
+        answers = StudentAnswer.objects.filter(result=result)
+        serializer = StudentAnswerSerializer(answers, many=True)
+                
