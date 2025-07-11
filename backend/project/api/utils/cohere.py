@@ -4,7 +4,6 @@ import os
 import logging
 from django.db import transaction
 from ..models import Question, Choice, QuizNumber
-from ..serializers import QuizNumberSerializer
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -15,7 +14,7 @@ co = cohere.ClientV2(trial_key)
 
 def generate_quiz_from_notes(notes: str, user):
     prompt = f"""
-You are a teacher. Based on the following notes, generate a 10-item quiz in JSON format. Include a "perfect_score" field and a "questions" field.
+You are a teacher. Based on the following notes, generate a 20-item quiz in JSON format. Include a "perfect_score" field and a "questions" field.
 
 Respond in the format:
 {{
@@ -25,11 +24,9 @@ Respond in the format:
       "question": "What is 2 + 2?",
       "choices": [
         {{"text": "3", "is_correct": false}},
-        {{"text": "4", "is_correct": true}},
-        ...
+        {{"text": "4", "is_correct": true}}
       ]
-    }},
-    ...
+    }}
   ]
 }}
 
@@ -86,13 +83,12 @@ Student Notes:
                         is_correct=is_correct
                     )
 
-        serialized = QuizNumberSerializer(quiz_number)
-        return serialized.data
+        return "Quiz generated successfully ✅"
 
     except json.JSONDecodeError as e:
         logger.error("JSON decode error from Cohere: %s", e)
-        raise Exception("Invalid JSON response from Cohere")
+        return "Failed to parse JSON from Cohere ❌"
 
     except Exception as e:
         logger.error("Quiz generation failed: %s", e)
-        raise
+        return "Something went wrong while generating the quiz ❌"

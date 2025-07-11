@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 interface Choice {
   id: string;
@@ -10,20 +10,23 @@ interface Choice {
 }
 
 interface Question {
-  id: string; // question ID
-  quiz_id: string;  // backend must provide this!
+  id: string;
+  quiz_id?: string;
   text: string;
   choices: Choice[];
 }
 
 interface QuizBoxProps {
-  quizzData: Question[];
+  quizzData: Question[];   // ✅ This is an array
+  quiz_no: string;
 }
 
-const QuizBox = ({ quizzData }: QuizBoxProps) => {
+const QuizBox = ({ quizzData, quiz_no }: QuizBoxProps) => {
   const [answers, setAnswers] = useState<{ [questionId: string]: string }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [message, setMessage] = useState("");
+  const [scoreResult, setScoreResult] = useState<null | { score: number; total: number }>(null);
+
 
   const postPerPage = 5;
   const lastPostIndex = currentPage * postPerPage;
@@ -39,37 +42,44 @@ const QuizBox = ({ quizzData }: QuizBoxProps) => {
       return;
     }
 
-    const quiz_id = quizzData[0]?.quiz_id || quizzData[0]?.id;
-
-   const payload = {
-  quiz_id: quiz_id,
-  answers: answers,
-};
-
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_HOST}submitAnswers/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+     const response = await fetch("/api/submit", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ answers,quiz_no }),
+});
 
+    
       if (!response.ok) {
-        setMessage("❌ Failed to submit answers.");
+        router.push("/auth/login/")
         return;
       }
-
+      const data = await response.json()
+      setScoreResult({ score: data.score, total: data.total });
       setMessage("✅ Answers Submitted");
-      router.push("/result");
     } catch (error) {
       console.error(error);
       setMessage("An error occurred during submission.");
     }
   };
+   if (scoreResult) {
+ return (
+  <section className="bg-slate-900 text-white min-h-screen relative p-6">
+    <div className="flex flex-col justify-center items-center min-h-screen">
+      <h1 className="text-4xl font-bold mb-4">Quiz Result</h1>
+      <p className="text-2xl">
+        Your Score: <span className="text-amber-400">{scoreResult.score}</span> / {scoreResult.total}
+      </p>
+      <p className="text-lg mt-2 text-amber-300">
+        You can view the full result later in the results page.
+      </p>
+    </div>
+  </section>
+);
+
+}
 
   return (
     <section>
@@ -81,7 +91,7 @@ const QuizBox = ({ quizzData }: QuizBoxProps) => {
 
       <div className="bg-slate-900 flex items-center justify-center min-h-screen p-5">
         <div className="w-full max-w-4xl space-y-8 mt-10">
-          <h2 className="text-3xl font-bold text-white">Quiz</h2>
+          <h2 className="text-3xl font-bold text-white">Quiz #{quiz_no}</h2>
 
           <ul className="space-y-6">
             {currentQuizzes.map((question) => {

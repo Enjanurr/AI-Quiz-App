@@ -5,7 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from api.utils.cohere import generate_quiz_from_notes
 from faster_whisper import WhisperModel
-import os, re
+import os
+import re
 
 model_size = "large-v3"
 whisper_model = WhisperModel(model_size, device="cpu", compute_type="int8")
@@ -14,9 +15,7 @@ def transcribe_audio(file_path):
     segments, _ = whisper_model.transcribe(file_path, beam_size=5)
     return " ".join([seg.text for seg in segments])
 
-
-class SummaryView(APIView):
-    
+class SummaryVideoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -26,6 +25,10 @@ class SummaryView(APIView):
 
         try:
             yt = YouTube(url, on_progress_callback=on_progress)
+            
+            if yt.length > 20 * 60:
+                return JsonResponse({"error": "Video too long. Max length allowed is 20 minutes."}, status=400)
+
             audio_stream = yt.streams.filter(only_audio=True).order_by('abr').desc().first()
 
             safe_title = re.sub(r'[\\/*?:"<>|]', "_", yt.title)
@@ -43,7 +46,14 @@ class SummaryView(APIView):
             # ✅ Generate quiz
             quiz_data = generate_quiz_from_notes(transcript, request.user)
 
+            # ✅ Delete the audio file after processing
+            if os.path.exists(full_path):
+                os.remove(full_path)
+
             return JsonResponse({'success': True, 'message': "Quiz generated successfully"})
 
         except Exception as e:
+            # Clean up if download happened but something else failed
+            if 'full_path' in locals() and os.path.exists(full_path):
+                os.remove(full_path)
             return JsonResponse({'success': False, 'error': str(e)}, status=500)

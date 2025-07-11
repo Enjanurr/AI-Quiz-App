@@ -25,10 +25,10 @@ load_dotenv() # load this like this BASE_DIR / '.env'
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = "django-insecure-j-wmv-n1*t_t9d+0ym20ob4c1_r*+wa&u*tc#mri9vrw%yutr#" #os.environ.get('DJANGO_SECRET')
-SECRET_KEY = 'django-insecure-j-wmv-n1*t_t9d+0ym20ob4c1_r*+wa&u*tc#mri9vrw%yutr#'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 ALLOWED_HOSTS = ["*"]
 
@@ -58,13 +58,14 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #cors
     'corsheaders.middleware.CorsMiddleware',  # Add this line FIRST
     'django.middleware.common.CommonMiddleware',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 #cors headers
@@ -86,7 +87,11 @@ CORS_ALLOW_METHODS = (
 )
 
 
-
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+    
+]
 
 
 ROOT_URLCONF = 'project.urls'
@@ -182,7 +187,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWS_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
      'DEFAULT_PERMISSION_CLASSES': [
@@ -196,7 +201,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
    #  "SIGNING_KEY": SECRET_KEY 
 }

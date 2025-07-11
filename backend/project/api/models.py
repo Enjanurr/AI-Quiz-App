@@ -6,6 +6,8 @@ class QuizNumber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_quizzes')
     quiz_number = models.IntegerField()
     perfect_score = models.IntegerField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=50, default="Untitled") 
  
         
 class Question(models.Model):

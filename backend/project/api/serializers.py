@@ -6,6 +6,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
 
 
+"""
 class EmailSerialiser(TokenObtainPairSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -55,8 +56,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)       
+        """
         
-        
+"""
 # For making the QuizNumber , Question and the choices 
 class ChoiceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -74,7 +76,7 @@ class QuizNumberSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True,read_only=True)
     class Meta:
         model = QuizNumber
-        fields = ['id','user','quiz_number','questions']
+        fields = ['id','user','quiz_number','questions']"""
 
 
 # After checking the answer and comparing it to the student answer 
@@ -99,6 +101,9 @@ class StudentAnswerSerializer(serializers.ModelSerializer):
     
     def get_is_correct(self,obj): # obj refers to the current instance of the model being serialized 
         return obj.selected_choice.is_correct
+
+
+
 
 # For displaying the All Quizzez
 class AllResultSerializer(serializers.ModelSerializer):

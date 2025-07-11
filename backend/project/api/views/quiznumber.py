@@ -1,18 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from ..models  import QuizNumber
-from ..serializers import QuizNumberSerializer
+from api.serializers.QuizNumberSerializer import QuizNumberSerializer
 # Already working
 class QuizNumberView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     
-    def get(self,request,quiz_id):
+    def get(self,request,quiznumber_id):
         try:
-            quiz_number = QuizNumber.objects.get(id=quiz_id,user=request.user)
+            quiz_number = QuizNumber.objects.get(id=quiznumber_id,user=request.user)
         except QuizNumber.DoesNotExist:
             return Response({"error": "Quiznumber not found"}, status=404)
         
-        serializer = QuizNumberSerializer(quiz_number,many=True)
+        serializer = QuizNumberSerializer(quiz_number)
         return Response(serializer.data)
         

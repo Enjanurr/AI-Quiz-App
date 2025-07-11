@@ -68,7 +68,7 @@ export default async function Video() {
           <h1 className="font-main text-6xl font-bold text-blue-400">
             Paste your YouTube video here
           </h1>
-
+           <div className="flex items-center justify-center text-slate-300 "><p>and</p></div>
           <p className="text-slate-300 text-2xl  font-main font-bold ">
             Wait a few moments while we prepare your quiz.
           </p>
