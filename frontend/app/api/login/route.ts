@@ -18,6 +18,7 @@ export async function POST(request: Request) {
 
   // ✅ Synchronous — DO NOT await
   const cookieStore = await cookies();
+
   cookieStore.set("access", data.access, {
     httpOnly: true,
     path: "/",
@@ -25,6 +26,13 @@ export async function POST(request: Request) {
     sameSite: "strict",
     maxAge: 60 * 60 * 24,
   });
+   cookieStore.set("refresh", data.refresh,{
+      httpOnly: true,
+    path: "/",
+    secure: true,
+    sameSite: "strict",
+    maxAge: 60 * 60 * 24,
+   })
 
   return new Response(JSON.stringify({ message: "Login successful" }), { status: 200 });
 }

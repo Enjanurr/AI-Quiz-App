@@ -5,7 +5,7 @@ from rest_framework.permissions import  AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import logout
 from rest_framework.views import APIView
-from rest_framework.permission import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 # For register
 class CreateUserView(generics.CreateAPIView):
