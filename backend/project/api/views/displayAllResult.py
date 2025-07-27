@@ -8,7 +8,6 @@ class AllResultView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self,request):
-        print("Request user:", request.user)
         result_id = Result.objects.filter(user = request.user).order_by("-created_at")
         serializer = AllResultSerializer(result_id,many=True)
         return Response(serializer.data)

@@ -67,7 +67,7 @@ export default function Process() {
   }
 };
 
- const VidSubmit = async () => {
+const VidSubmit = async () => {
   if (!youtubeUrl.trim()) {
     setVideoMessage("Please enter a YouTube URL!");
     setVideoMessageType("error");
@@ -77,39 +77,43 @@ export default function Process() {
   try {
     const response = await fetch("/api/sendurl", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include", // if using cookies/session auth
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // Needed if using session cookies
       body: JSON.stringify({ youtubeUrl }),
     });
-     const data = await response.json();
-       if (data.success) {
-      setVideoMessage(data.message); // "Quiz generated successfully"
-      setVideoMessageType("success");
-    } else {
-      setVideoMessage(data.message || "Something went wrong.");
-      setVideoMessageType("error");
-    }
+
+    // Handle Unauthorized first (401)
     if (response.status === 401) {
       setVideoMessage("🔒 Please log in to submit.");
       setVideoMessageType("error");
 
       setTimeout(() => {
         router.push("/auth/login");
-      }, 2000); // 2 seconds delay
-// 👈 Redirect to login
+      }, 2000);
       return;
     }
 
+    const data = await response.json();
+
     if (!response.ok) {
-      setVideoMessage("❌ Failed to submit YouTube URL.");
+      setVideoMessage(data.message || "❌ Failed to submit YouTube URL.");
       setVideoMessageType("error");
-    } else {
-      setVideoMessage("✅ YouTube URL submitted successfully!");
-      setVideoMessageType("success");
-      setYoutubeUrl("");
+      return;
     }
+
+    if (data.success) {
+      setVideoMessage(data.message || "✅ YouTube URL submitted successfully!");
+      setVideoMessageType("success");
+      setYoutubeUrl(""); // Clear input field
+    } else {
+      setVideoMessage(data.message || "❌ Something went wrong.");
+      setVideoMessageType("error");
+    }
+
   } catch (error) {
-    console.error("Video URL submit failed", error);
+    console.error("Video URL submit failed:", error);
     setVideoMessage("❌ Video submission failed.");
     setVideoMessageType("error");
   }
@@ -157,6 +161,7 @@ export default function Process() {
             <p className="text-xl font-semibold text-blue-300 mb-2 text-center">🎥 Video</p>
             <p className="text-slate-400 text-sm text-center leading-relaxed mb-4">
               Paste a YouTube video link. We'll transcribe the audio and extract quiz-worthy insights.
+              
             </p>
 
             <input

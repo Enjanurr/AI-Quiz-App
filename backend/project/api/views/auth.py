@@ -7,6 +7,7 @@ from django.contrib.auth import logout
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
+from rest_framework_simplejwt.tokens import RefreshToken
 # For register
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -21,9 +22,10 @@ class SignOut(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         try:
+            print("logging out")
             refresh_token = request.data["refresh"]
             token = RefreshToken(refresh_token)
             token.blacklist()
-            return JsonResponse({"message":"Logged out"}, status=205)
+            return JsonResponse({"message":"Logged out"}, status=200)
         except Exception:
             return JsonResponse({"error":"Invalid Token"}, status=400)

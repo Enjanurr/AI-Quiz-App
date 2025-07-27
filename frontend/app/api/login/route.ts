@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   const data = await res.json();
 
   if (!res.ok) {
-    return new Response(JSON.stringify({ detail: "Login failed" }), { status: 401 });
+    return new Response(JSON.stringify({ detail: data.detail }), { status: 401 });
   }
 
   // ✅ Synchronous — DO NOT await

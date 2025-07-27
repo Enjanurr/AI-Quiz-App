@@ -12,7 +12,7 @@ class QuizNumberView(APIView):
             quiz_number = QuizNumber.objects.get(id=quiznumber_id,user=request.user)
         except QuizNumber.DoesNotExist:
             return Response({"error": "Quiznumber not found"}, status=404)
-        
+    
         serializer = QuizNumberSerializer(quiz_number)
         return Response(serializer.data)
         

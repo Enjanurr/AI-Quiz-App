@@ -13,9 +13,7 @@ class QuizNumber(models.Model):
 class Question(models.Model):
     quiz = models.ForeignKey(QuizNumber, on_delete=models.CASCADE, related_name="questions",null=True)
     text = models.TextField()
-    
-   
-    
+
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="choices")
     text = models.CharField(max_length=255)
@@ -30,12 +28,12 @@ class Result(models.Model):
     score = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     
-
-
 class StudentAnswer(models.Model):
     result = models.ForeignKey(Result, on_delete=models.CASCADE, related_name='answers') 
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='student_answers')
     # What the student choose
     selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE, related_name='selected_answers')
     
-
+class ProfilePicture(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE, related_name="userprofile")
+    avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png') 

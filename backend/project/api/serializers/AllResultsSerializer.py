@@ -5,6 +5,8 @@ from ..models import Result
 class AllResultSerializer(serializers.ModelSerializer):
     quiz_number = serializers.IntegerField(source='quiz.quiz_number')
     perfect = serializers.IntegerField(source='quiz.perfect_score')
+    title = serializers.CharField(source="quiz.title")
+    perfect_score = serializers.IntegerField(source='quiz.perfect_score')
     class Meta:
         model = Result
-        fields = ['id','quiz_number','score','perfect','created_at']
+        fields = ['id','quiz_number','score','perfect','created_at','title','perfect_score']

@@ -3,6 +3,6 @@ from .AllResultsSerializer import AllResultSerializer
 from .CheckAnswerSerializer import StudentAnswerSerializer
 from .ReviewSerializer import ResultReviewSerializer
 from .QuizNumberSerializer import QuizNumberSerializer
+from .ProfileSerializer import ProfileSerializer,GetProfile
 
-
-__all__ = ['QuizNumberSerializer','ResultReviewSerializer','StudentAnswerSerializer','AllResultSerializer','AllQuizNumberSerializer']
+__all__ = ['GetProfile','ProfileSerializer','QuizNumberSerializer','ResultReviewSerializer','StudentAnswerSerializer','AllResultSerializer','AllQuizNumberSerializer']

@@ -25,7 +25,7 @@ export default function Login() {
 
     if (response.ok) {
       setMessage('✅ Login successful');
-      setMessageType('success');
+      setMessageType('success');  
 
       // Optional: wait a moment before redirect
       setTimeout(() => {
@@ -33,10 +33,7 @@ export default function Login() {
       }, 1000);
     } else {
       const errorMessage =
-        data?.detail ||
-        data?.error ||
-        data?.non_field_errors?.[0] ||
-        '❌ Login failed.';
+        data?.detail
       setMessage(errorMessage);
       setMessageType('error');
     }
@@ -44,7 +41,8 @@ export default function Login() {
 
   return (
     <section className="bg-slate-900 min-h-screen flex items-center justify-center px-4">
-      <div className="flex flex-col items-center space-y-6 min-w-3xl">
+      <div className="flex flex-col items-center space-y-6 w-full px-4">
+
         <h1 className="text-blue-400 text-6xl font-bold text-center mb-20">
           Welcome back!
         </h1>

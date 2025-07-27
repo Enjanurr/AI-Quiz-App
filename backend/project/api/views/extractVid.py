@@ -1,6 +1,6 @@
 from pytubefix import YouTube
 from pytubefix.cli import on_progress
-from django.http import JsonResponse
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from api.utils.cohere import generate_quiz_from_notes
@@ -21,13 +21,14 @@ class SummaryVideoView(APIView):
     def post(self, request):
         url = request.data.get('url')
         if not url:
-            return JsonResponse({"error": "No URL provided"}, status=400)
+            return Response({"error": "No URL provided"}, status=400)
 
         try:
             yt = YouTube(url, on_progress_callback=on_progress)
-            
+
             if yt.length > 20 * 60:
-                return JsonResponse({"error": "Video too long. Max length allowed is 20 minutes."}, status=400)
+                print("too long")
+                return Response({"error": "Video too long. Max length allowed is 20 minutes."}, status=400)
 
             audio_stream = yt.streams.filter(only_audio=True).order_by('abr').desc().first()
 
@@ -50,10 +51,14 @@ class SummaryVideoView(APIView):
             if os.path.exists(full_path):
                 os.remove(full_path)
 
-            return JsonResponse({'success': True, 'message': "Quiz generated successfully"})
+            return Response({
+                'success': True,
+                'message': "Quiz generated successfully",
+                'data': quiz_data  # include this if you want to return quiz data too
+            })
 
         except Exception as e:
             # Clean up if download happened but something else failed
             if 'full_path' in locals() and os.path.exists(full_path):
                 os.remove(full_path)
-            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+            return Response({'success': False, 'error': str(e)}, status=500)

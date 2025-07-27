@@ -12,7 +12,7 @@ export async function PATCH(req: NextRequest){
     }
     const response =  await fetch(`${process.env.NEXT_PUBLIC_HOST}update/${id}/`,{
         method:"PATCH",
-        headers:{
+        headers:{   
             "Content-Type": "application/json",
             Authorization: `Bearer ${access}`,
         },

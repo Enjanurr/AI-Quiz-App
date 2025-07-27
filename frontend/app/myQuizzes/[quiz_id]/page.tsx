@@ -1,7 +1,7 @@
 // app/quiz/[quiz_id]/page.tsx
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import QuizBox from "@/components/QuizBox";
+import QuizBox from "@/components/quizBox";
 import Nav from "@/components/Nav";
 
 export default async function MyQuizzes({ params }: { params: { quiz_id: string } }) {
@@ -33,13 +33,14 @@ export default async function MyQuizzes({ params }: { params: { quiz_id: string 
     data = await response.json();
   } catch (error) {
     console.error("Error loading quizzes", error);
+      redirect("/auth/login");
     return <p className="text-red-500">Failed to load quiz data</p>;
   }
 
   return (
     <section>
       <Nav />
-      <QuizBox quizzData={data.questions} quiz_no={params.quiz_id} />
+      <QuizBox quizzData={data.questions} quiz_no={params.quiz_id} title={data.title}/>
     </section>
   );
 }

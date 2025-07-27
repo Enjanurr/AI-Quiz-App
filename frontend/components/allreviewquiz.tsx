@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { FaTrash } from "react-icons/fa";
 interface Result {
   id: string;
   quiz_number: number;
@@ -13,6 +13,8 @@ interface Result {
 const AllReviewQuiz = () => {
   const [results, setResults] = useState<Result[]>([]);
   const router = useRouter();
+  
+  
   return (
     <section className="flex justify-center items-start min-h-screen bg-slate-800 py-10 px-4">
       <div className="bg-slate-700 w-full max-w-4xl rounded-lg shadow-md p-6">
@@ -37,6 +39,7 @@ const AllReviewQuiz = () => {
           ))}
         </div>
       </div>
+    
     </section>
   );
 };

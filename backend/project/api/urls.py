@@ -1,5 +1,5 @@
 from django.urls import path
-from api.views import SummaryVideoView,QuizNumberView ,AllQuizNumberView,SummaryPDFView,UpdateView
+from api.views import ProfileView, SignOut, SummaryVideoView,QuizNumberView ,AllQuizNumberView,SummaryPDFView,UpdateView
 from api.views import CreateUserView,EmailUserView,CheckAnswersView,AllResultView , ReviewQuizView
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -19,11 +19,13 @@ urlpatterns = [
     
     path('submitAnswers/<str:quiznumber_id>',CheckAnswersView.as_view(), name='check_Answers'), # for answer submission
     # mostly get req
-    
+    path('profile/',ProfileView.as_view(),name="profile"),
     path('reviewQuiz/<str:result_id>/', ReviewQuizView.as_view(),name='reviewQuiz'),  
     #authentication
+    path('logout/',SignOut.as_view(),name="logout"),
     path("token/", EmailUserView.as_view(), name="get_token"),
     path("token/refresh/", TokenRefreshView.as_view(), name="refresh_token"),
     path("user/register/", CreateUserView.as_view(), name="register"),
+    
    
 ]   
