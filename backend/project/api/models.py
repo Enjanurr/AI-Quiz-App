@@ -1,25 +1,39 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-    
-# Create your models here.
-class QuizScore(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE,related_name="score")
-    score = models.IntegerField()
-    taken_At = models.TimeField(auto_now_add=True)
-    
+# The commented code does nothing Just let the 
+class QuizNumber(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_quizzes')
+    quiz_number = models.IntegerField()
+    perfect_score = models.IntegerField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=50, default="Untitled") 
+ 
+        
 class Question(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="questions",null=True)
+    quiz = models.ForeignKey(QuizNumber, on_delete=models.CASCADE, related_name="questions",null=True)
     text = models.TextField()
-    
-    def __str__(self):
-        return self.text
-    
+
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="choices")
-    text = models.CharField(max_length = 255)
+    text = models.CharField(max_length=255)
     is_correct = models.BooleanField(default=False)
     
-    def __str__(self):
-        return f"{self.text} (Correct:{self.is_correct})"
+
     
+# result
+class Result(models.Model): 
+    quiz = models.ForeignKey(QuizNumber, on_delete=models.CASCADE, related_name='quiz_results')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_results')
+    score = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+class StudentAnswer(models.Model):
+    result = models.ForeignKey(Result, on_delete=models.CASCADE, related_name='answers') 
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='student_answers')
+    # What the student choose
+    selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE, related_name='selected_answers')
+    
+class ProfilePicture(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE, related_name="userprofile")
+    avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png') 

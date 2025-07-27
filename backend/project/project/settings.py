@@ -15,21 +15,24 @@ from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+from decouple import config
 from dotenv import load_dotenv
 import os
 
 load_dotenv() # load this like this BASE_DIR / '.env'
 
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = "django-insecure-j-wmv-n1*t_t9d+0ym20ob4c1_r*+wa&u*tc#mri9vrw%yutr#" #os.environ.get('DJANGO_SECRET')
-SECRET_KEY = 'django-insecure-j-wmv-n1*t_t9d+0ym20ob4c1_r*+wa&u*tc#mri9vrw%yutr#'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+SECRET_KEY = os.environ.get('SECRET_KEY')
+import dj_database_url
 ALLOWED_HOSTS = ["*"]
 
 
@@ -58,13 +61,14 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #cors
     'corsheaders.middleware.CorsMiddleware',  # Add this line FIRST
     'django.middleware.common.CommonMiddleware',
+    
 ]
 
 #cors headers
@@ -86,7 +90,11 @@ CORS_ALLOW_METHODS = (
 )
 
 
-
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+    
+]
 
 
 ROOT_URLCONF = 'project.urls'
@@ -111,7 +119,15 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+"""DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASES = {
+    'default': dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=True
+    )
+}
+"""
 
 
 """
@@ -131,8 +147,13 @@ DATABASES = {
         'PASSWORD': os.environ.get('POSTGRESS_PASSWORD'),
         'HOST': os.environ.get('POSTGRESS_HOST'),
         'PORT': os.environ.get('POSTGRESS_PORT'),
+        'OPTIONS': {
+            'sslmode': 'require'  # Supabase requires this
+        }
     }
 }
+
+
 
 
 
@@ -182,7 +203,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWS_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
      'DEFAULT_PERMISSION_CLASSES': [
@@ -195,8 +216,43 @@ REST_FRAMEWORK = {
    
 }
 
+
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-   #  "SIGNING_KEY": SECRET_KEY 
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": False,
+
+    "ALGORITHM": "HS256",
+    #"SIGNING_KEY": settings.SECRET_KEY,
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+
+    "JTI_CLAIM": "jti",
+
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+
+    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
