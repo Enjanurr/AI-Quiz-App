@@ -29,7 +29,7 @@ A full-stack web app that generates interactive quizzes from YouTube videos usin
 - SimpleJWT for authentication
 - Cohere for AI-based quiz generation
 - Faster-Whisper for audio transcription
-- SQLite (dev) / PostgreSQL (optional)
+-  PostgreSQL 
 
 ### Frontend:
 - Next.js (App Router)
